@@ -4,6 +4,7 @@ import VerificationToken from "../models/VerificationToken.js";
 import bcrypt from "bcryptjs";
 import crypto from "crypto";
 import { sendVerificationEmail } from "../utils/email.js";
+import { flattenDiagnosticMessageText } from "typescript";
 
 export const signup = async (req, res) => {
     try {
@@ -303,7 +304,7 @@ export const getMe = async (req, res) => {
                 message: "Not Authenticated",
             });
         }
-        const user = await User.findById(req.session.userId);
+        const user = await User.findById(userId);
         if (!user) {
             return res.status(400).json({
                 success: false,
@@ -324,5 +325,22 @@ export const getMe = async (req, res) => {
         });
     } catch (error) {
         return res.status(400).json({ success: false, message: error.message });
+    }
+};
+
+export const logout = async (req, res) => {
+    try {
+        req.session.destroy(() => {
+            res.clearCookie("connect.sid");
+            return res.status(200).json({
+                success: true,
+                message: "Logout Successfully",
+            });
+        });
+    } catch (error) {
+        return res.status(400).json({
+            success: false,
+            message: error.message,
+        });
     }
 };
