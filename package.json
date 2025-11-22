@@ -4,5 +4,11 @@
     "workspaces": [
         "client",
         "server"
-    ]
+    ],
+    "scripts": {
+        "dev": "concurrently \"npm:dev --workspace client\" \"npm:dev --workspace server\""
+    },
+    "devDependencies": {
+        "concurrently": "^9.2.1"
+    }
 }
