@@ -6,6 +6,7 @@ const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [authLoading, setAuthLoading] = useState(false);
 
     const fetchMe = async () => {
         try {
@@ -22,8 +23,18 @@ export const AuthProvider = ({ children }) => {
     };
 
     const login = async (email, password) => {
-        await api.post("/api/auth/login", { email, password });
-        await fetchMe(); // important
+        try {
+            setAuthLoading(true);
+            const res = await api.post("/api/auth/login", {
+                email,
+                password,
+            });
+            await fetchMe();
+        } catch (error) {
+            throw error?.response?.data?.message || "Login failed";
+        } finally {
+            setAuthLoading(false);
+        }
     };
 
     const logout = async () => {
@@ -43,7 +54,9 @@ export const AuthProvider = ({ children }) => {
         );
 
     return (
-        <AuthContext.Provider value={{ user, loading, login, logout }}>
+        <AuthContext.Provider
+            value={{ user, loading, authLoading, login, logout, fetchMe }}
+        >
             {children}
         </AuthContext.Provider>
     );

@@ -2,12 +2,58 @@ import React, { useState } from "react";
 import InputField from "../components/ui/InputField";
 import { Lock, Mail } from "lucide-react";
 import SubmitButton from "../components/ui/SubmitButton";
+import { useAuth } from "../context/AuthContext";
+import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 
 const Login = () => {
     const [form, setForm] = useState({ email: "", password: "" });
+    const [errors, setErrors] = useState({
+        email: "",
+        password: "",
+    });
+
+    const { login, authLoading } = useAuth();
+    const navigate = useNavigate();
 
     const handleChange = (e) => {
         setForm({ ...form, [e.target.name]: e.target.value });
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+
+        //reset errors
+        setErrors({ email: "", password: "" });
+
+        let valid = true;
+        if (!form.email.trim()) {
+            setErrors((prev) => ({ ...prev, email: "Email is required" }));
+            valid = false;
+        }
+        if (!form.password.trim()) {
+            setErrors((prev) => ({
+                ...prev,
+                password: "Password is required",
+            }));
+            valid = false;
+        }
+
+        if (!valid) return;
+
+        try {
+            await login(form.email, form.password);
+            toast.success("Logged in successfully");
+            navigate("/dashboard");
+        } catch (error) {
+            toast.error(error);
+        }
+    };
+
+    const handleGoogleLogin = () => {
+        window.location.href = `${
+            import.meta.env.VITE_API_URL
+        }/api/auth/google`;
     };
 
     return (
@@ -43,7 +89,7 @@ const Login = () => {
                         </p>
 
                         {/* Form Container */}
-                        <form className="space-y-4">
+                        <form className="space-y-4" onSubmit={handleSubmit}>
                             {/* Email Field - we will replace with InputField next */}
                             <InputField
                                 label="Email"
@@ -53,6 +99,7 @@ const Login = () => {
                                 icon={Mail}
                                 value={form.email}
                                 onChange={handleChange}
+                                error={errors.email}
                             />
 
                             {/* Password Field */}
@@ -64,6 +111,7 @@ const Login = () => {
                                 icon={Lock}
                                 value={form.password}
                                 onChange={handleChange}
+                                error={errors.password}
                             />
 
                             {/* Submit Button */}
@@ -71,7 +119,7 @@ const Login = () => {
                                 text="Login"
                                 fullWidth
                                 size="md"
-                                loading={false}
+                                loading={authLoading}
                             />
                         </form>
 
@@ -85,8 +133,15 @@ const Login = () => {
                         </div>
 
                         {/* Google OAuth Button */}
-                        <button className="w-full py-2 rounded-xl bg-white/10 dark:bg-white/5 border border-white/20 dark:border-white/10 flex items-center justify-center gap-3 backdrop-blur-md hover:bg-white/20 dark:hover:bg-white/10 transition-all">
-                            GOOGLE BUTTON
+                        <button
+                            onClick={handleGoogleLogin}
+                            className="w-full py-2 rounded-xl bg-white/10 dark:bg-white/5 border border-white/20 dark:border-white/10 flex items-center justify-center gap-3 backdrop-blur-md hover:bg-white/20 dark:hover:bg-white/10 transition-all cursor-pointer"
+                        >
+                            <img
+                                src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
+                                className="w-5 h-5"
+                            />
+                            Continue with Google
                         </button>
 
                         {/* Footer */}

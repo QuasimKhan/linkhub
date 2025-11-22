@@ -1,4 +1,4 @@
-import { Loader2 } from "lucide-react";
+import { Loader, Loader2 } from "lucide-react";
 import React from "react";
 
 const SubmitButton = ({
@@ -26,7 +26,11 @@ const SubmitButton = ({
             type="submit"
             disabled={loading}
         >
-            {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : text}
+            {loading ? (
+                <Loader2 className="w-5 h-5 mx-auto animate-spin" />
+            ) : (
+                text
+            )}
         </button>
     );
 };
