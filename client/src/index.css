@@ -1,2 +1,17 @@
 @import "tailwindcss";
 @plugin "daisyui";
+@custom-variant dark (&:where(.dark, .dark *));
+
+@keyframes theme-in {
+    0% {
+        transform: rotate(-45deg) scale(0.8);
+        opacity: 0;
+    }
+    100% {
+        transform: rotate(0deg) scale(1);
+        opacity: 1;
+    }
+}
+.animate-theme-in {
+    animation: theme-in 200ms ease-out;
+}

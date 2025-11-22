@@ -35,7 +35,12 @@ export const AuthProvider = ({ children }) => {
         fetchMe();
     }, []);
 
-    if (loading) return <div className="text-center py-8">Loading...</div>;
+    if (loading)
+        return (
+            <div className="text-center py-8">
+                <span className="loading loading-ball loading-xs"></span>
+            </div>
+        );
 
     return (
         <AuthContext.Provider value={{ user, loading, login, logout }}>

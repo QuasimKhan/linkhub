@@ -6,9 +6,9 @@ export const ThemeContext = createContext();
 export const ThemeProvider = ({ children }) => {
     //load saved theme first , if in local storage
 
-    const [theme, setTheme] = useState(() => {
-        localStorage.getItem("theme") || "system";
-    });
+    const [theme, setTheme] = useState(
+        () => localStorage.getItem("theme") || "system"
+    );
 
     // apply theme whenever it changes
     useEffect(() => {

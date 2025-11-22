@@ -1,156 +1,109 @@
 import React, { useState } from "react";
-import { useAuth } from "../context/AuthContext";
-import { useNavigate } from "react-router-dom";
-import { toast } from "sonner";
-import { Mail, Lock, Loader2, ArrowRight, Moon, Sun } from "lucide-react";
+import InputField from "../components/ui/InputField";
+import { Lock, Mail } from "lucide-react";
+import SubmitButton from "../components/ui/SubmitButton";
 
-export default function Login() {
+const Login = () => {
     const [form, setForm] = useState({ email: "", password: "" });
-    const [loading, setLoading] = useState(false);
 
-    const { login } = useAuth();
-    const navigate = useNavigate();
-
-    // Theme toggle
-    const toggleTheme = () => {
-        const theme =
-            document.documentElement.getAttribute("data-theme") === "dark"
-                ? "light"
-                : "dark";
-        document.documentElement.setAttribute("data-theme", theme);
-        toast.info(`${theme === "dark" ? "Dark" : "Light"} mode enabled`);
-    };
-
-    const handleChange = (e) =>
+    const handleChange = (e) => {
         setForm({ ...form, [e.target.name]: e.target.value });
-
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-
-        if (!form.email || !form.password) {
-            return toast.error("All fields are required.");
-        }
-
-        try {
-            setLoading(true);
-            await login(form.email, form.password);
-            toast.success("Logged in successfully");
-            navigate("/dashboard");
-        } catch (error) {
-            toast.error(
-                error?.response?.data?.message || "Invalid credentials"
-            );
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const handleGoogleLogin = () => {
-        const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
-
-        window.location.href = `${API_URL}/api/auth/google`;
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center px-4 bg-base-200 relative transition-colors">
-            {/* Theme Toggle */}
-            <button
-                onClick={toggleTheme}
-                className="absolute top-4 right-4 btn btn-sm btn-ghost"
-            >
-                <Sun className="w-5 h-5 dark:hidden" />
-                <Moon className="w-5 h-5 hidden dark:block" />
-            </button>
+        <div className="min-h-screen grid lg:grid-cols-2">
+            {/* Left Panel  */}
+            <div className="hidden lg:flex items-center justify-center bg-gradient-to-b from-purple-600 via-indigo-600 to-blue-600 relative overflow-hidden">
+                Left
+            </div>
 
-            {/* Card */}
-            <div className="card w-full max-w-md shadow-xl bg-base-100 p-8 border border-base-300 rounded-xl">
-                {/* Title */}
-                <h1 className="text-3xl font-bold text-center mb-2">
-                    Welcome Back 👋
-                </h1>
-                <p className="text-center text-base-content/60 mb-6">
-                    Login to your account to continue
-                </p>
+            {/* Right Panel  */}
+            <div className="flex items-center justify-center p-6">
+                <div
+                    className="
+        w-full max-w-md
+        bg-white/10 dark:bg-white/5 
+        backdrop-blur-xl
+        border border-white/20 dark:border-white/10 
+        rounded-2xl 
+        p-8 
+        shadow-xl 
+        text-center
+    "
+                >
+                    <div>
+                        {/* Branding Title */}
+                        <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2">
+                            Welcome Back 👋
+                        </h1>
 
-                {/* Form */}
-                <form onSubmit={handleSubmit} className="space-y-4">
-                    {/* Email */}
-                    <label className="form-control w-full">
-                        <div className="label">
-                            <span className="label-text">Email</span>
-                        </div>
-                        <div className="relative">
-                            <Mail className="absolute left-3 top-3 w-5 h-5 text-base-content/50" />
-                            <input
+                        {/* Subtitle */}
+                        <p className="text-gray-700/80 dark:text-gray-300/80 mb-6">
+                            Login to your LinkHub account
+                        </p>
+
+                        {/* Form Container */}
+                        <form className="space-y-4">
+                            {/* Email Field - we will replace with InputField next */}
+                            <InputField
+                                label="Email"
                                 type="email"
                                 name="email"
-                                onChange={handleChange}
                                 placeholder="you@example.com"
-                                className="input input-bordered w-full pl-10"
-                                required
+                                icon={Mail}
+                                value={form.email}
+                                onChange={handleChange}
                             />
-                        </div>
-                    </label>
 
-                    {/* Password */}
-                    <label className="form-control w-full">
-                        <div className="label">
-                            <span className="label-text">Password</span>
-                        </div>
-                        <div className="relative">
-                            <Lock className="absolute left-3 top-3 w-5 h-5 text-base-content/50" />
-                            <input
+                            {/* Password Field */}
+                            <InputField
+                                label="Password"
                                 type="password"
                                 name="password"
-                                onChange={handleChange}
                                 placeholder="••••••••"
-                                className="input input-bordered w-full pl-10"
-                                required
+                                icon={Lock}
+                                value={form.password}
+                                onChange={handleChange}
                             />
+
+                            {/* Submit Button */}
+                            <SubmitButton
+                                text="Login"
+                                fullWidth
+                                size="md"
+                                loading={false}
+                            />
+                        </form>
+
+                        {/* Divider */}
+                        <div className="my-6 flex items-center justify-center gap-3">
+                            <span className="h-px w-20 bg-white/20"></span>
+                            <span className="text-gray-600 dark:text-gray-300 text-sm">
+                                Or continue with
+                            </span>
+                            <span className="h-px w-20 bg-white/20"></span>
                         </div>
-                    </label>
 
-                    {/* Submit Button */}
-                    <button
-                        type="submit"
-                        disabled={loading}
-                        className="btn btn-primary w-full mt-4"
-                    >
-                        {loading ? (
-                            <Loader2 className="animate-spin w-5 h-5" />
-                        ) : (
-                            <>
-                                Login
-                                <ArrowRight className="w-5 h-5 ml-2" />
-                            </>
-                        )}
-                    </button>
-                </form>
+                        {/* Google OAuth Button */}
+                        <button className="w-full py-2 rounded-xl bg-white/10 dark:bg-white/5 border border-white/20 dark:border-white/10 flex items-center justify-center gap-3 backdrop-blur-md hover:bg-white/20 dark:hover:bg-white/10 transition-all">
+                            GOOGLE BUTTON
+                        </button>
 
-                {/* Divider */}
-                <div className="divider my-6">Or continue with</div>
-
-                {/* Google Button */}
-                <button
-                    className="btn btn-outline w-full flex items-center gap-3"
-                    onClick={handleGoogleLogin}
-                >
-                    <img
-                        src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
-                        alt="Google"
-                        className="w-5 h-5"
-                    />
-                    Continue with Google
-                </button>
-
-                {/* Footer */}
-                <p className="text-center text-sm mt-6 text-base-content/70">
-                    Don’t have an account?
-                    <a href="/signup" className="link link-primary ml-1">
-                        Create one
-                    </a>
-                </p>
+                        {/* Footer */}
+                        <p className="text-sm text-gray-700 dark:text-gray-300 mt-6">
+                            Don’t have an account?
+                            <a
+                                href="/signup"
+                                className="text-indigo-400 hover:underline ml-1"
+                            >
+                                Create one
+                            </a>
+                        </p>
+                    </div>
+                </div>
             </div>
         </div>
     );
-}
+};
+
+export default Login;
