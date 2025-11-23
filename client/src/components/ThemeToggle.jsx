@@ -1,4 +1,3 @@
-// components/ThemeToggle.jsx
 import { useContext, useEffect, useState } from "react";
 import { ThemeContext } from "../context/ThemeContext";
 import { Sun, Moon, Monitor } from "lucide-react";
@@ -13,7 +12,6 @@ export default function ThemeToggle() {
     const { theme, setTheme } = useContext(ThemeContext);
     const [mounted, setMounted] = useState(false);
 
-    // Avoid hydration mismatch for system theme
     useEffect(() => setMounted(true), []);
 
     const nextTheme =
@@ -21,18 +19,9 @@ export default function ThemeToggle() {
 
     const Icon = icons[theme];
 
-    // Derive system appearance
-    const systemAppearance =
-        typeof window !== "undefined" &&
-        window.matchMedia("(prefers-color-scheme: dark)").matches
-            ? "dark"
-            : "light";
+    const ariaLabel = `Switch to ${nextTheme} theme`;
 
-    const ariaLabel = `Switch to ${
-        nextTheme === "system" ? "system" : nextTheme
-    } theme`;
-
-    if (!mounted) return null; // Prevents flash of wrong icon
+    if (!mounted) return null;
 
     return (
         <button
@@ -40,49 +29,43 @@ export default function ThemeToggle() {
             aria-label={ariaLabel}
             onClick={() => setTheme(nextTheme)}
             className="
-        relative flex items-center justify-center
-        w-10 h-10 rounded-full
-        text-slate-700 dark:text-slate-200
-        bg-white/50 dark:bg-slate-800/50
-        hover:bg-slate-200/60 dark:hover:bg-slate-700/60
-        focus:outline-none focus-visible:ring-2
-        focus-visible:ring-indigo-500 dark:focus-visible:ring-indigo-400
-        transition-all duration-200 ease-in-out
-        transform hover:scale-110 active:scale-95
-      "
+                cursor-pointer relative flex items-center justify-center
+                w-11 h-11 rounded-xl
+                bg-gray-200/60 dark:bg-gray-800/60
+                backdrop-blur-xl
+                border border-gray-300 dark:border-gray-700
+                text-gray-900 dark:text-gray-100
+                hover:bg-gray-300/70 dark:hover:bg-gray-700/70
+                hover:border-indigo-400 dark:hover:border-indigo-400
+                transition-all duration-200 ease-out
+                active:scale-95
+                shadow-md dark:shadow-lg
+            "
         >
             <span className="sr-only">{ariaLabel}</span>
 
-            {/* Icon wrapper with gentle spin */}
+            {/* Animated Icon */}
             <span
-                key={theme} // re-triggers animation on change
+                key={theme}
                 className="
-          inline-block
-          animate-theme-in
-          motion-reduce:animate-none
-        "
+                    inline-block
+                    animate-theme-in
+                    motion-reduce:animate-none
+                "
             >
                 <Icon className="w-5 h-5" />
             </span>
 
-            {/* Subtle dot indicator for system theme */}
+            {/* Small indicator dot for system mode */}
             {theme === "system" && (
                 <span
                     className="
-            absolute bottom-1 right-1
-            block w-1.5 h-1.5 rounded-full
-            bg-indigo-500
-          "
-                    aria-hidden
+                        absolute bottom-1 right-1
+                        w-1.5 h-1.5 rounded-full
+                        bg-indigo-500
+                    "
                 />
             )}
         </button>
     );
 }
-
-/* TailwindCSS keyframes (add to global.css or tailwind config) */
-/* @keyframes theme-in {
-  0%   { transform: rotate(-45deg) scale(0.8); opacity: 0; }
-  100% { transform: rotate(0deg)   scale(1);   opacity: 1; }
-}
-.animate-theme-in { animation: theme-in 200ms ease-out; } */

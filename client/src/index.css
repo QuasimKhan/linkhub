@@ -2,16 +2,29 @@
 @plugin "daisyui";
 @custom-variant dark (&:where(.dark, .dark *));
 
+/* Light mode default */
+html,
+body {
+    @apply bg-gray-100 text-gray-900 transition-colors duration-300;
+}
+
+/* Dark mode */
+html.dark,
+html.dark body {
+    @apply bg-gray-900 text-gray-100;
+}
+
 @keyframes theme-in {
-    0% {
-        transform: rotate(-45deg) scale(0.8);
+    from {
         opacity: 0;
+        transform: scale(0.6) rotate(-12deg);
     }
-    100% {
-        transform: rotate(0deg) scale(1);
+    to {
         opacity: 1;
+        transform: scale(1) rotate(0deg);
     }
 }
+
 .animate-theme-in {
-    animation: theme-in 200ms ease-out;
+    animation: theme-in 0.25s ease-out forwards;
 }

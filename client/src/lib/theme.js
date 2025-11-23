@@ -8,5 +8,11 @@ export const getSystemTheme = () => {
 
 export const applyThemeToHTML = (theme) => {
     const finalTheme = theme === "system" ? getSystemTheme() : theme;
-    document.documentElement.classList.toggle("dark", finalTheme === "dark");
+
+    const html = document.documentElement;
+    html.classList.remove("dark");
+
+    if (finalTheme === "dark") {
+        html.classList.add("dark");
+    }
 };

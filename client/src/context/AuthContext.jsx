@@ -22,6 +22,21 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
+    const signup = async (name, email, password) => {
+        try {
+            setAuthLoading(true);
+            const res = await api.post("/api/auth/signup", {
+                name,
+                email,
+                password,
+            });
+        } catch (error) {
+            throw error?.response?.data?.message || "Signup failed";
+        } finally {
+            setAuthLoading(false);
+        }
+    };
+
     const login = async (email, password) => {
         try {
             setAuthLoading(true);
@@ -55,7 +70,15 @@ export const AuthProvider = ({ children }) => {
 
     return (
         <AuthContext.Provider
-            value={{ user, loading, authLoading, login, logout, fetchMe }}
+            value={{
+                user,
+                loading,
+                authLoading,
+                login,
+                signup,
+                logout,
+                fetchMe,
+            }}
         >
             {children}
         </AuthContext.Provider>

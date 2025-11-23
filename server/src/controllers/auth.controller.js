@@ -4,7 +4,6 @@ import VerificationToken from "../models/VerificationToken.js";
 import bcrypt from "bcryptjs";
 import crypto from "crypto";
 import { sendVerificationEmail } from "../utils/email.js";
-import { flattenDiagnosticMessageText } from "typescript";
 
 export const signup = async (req, res) => {
     try {
@@ -17,7 +16,15 @@ export const signup = async (req, res) => {
         }
 
         const userExist = await User.findOne({ email });
-        if (userExist) {
+        if (userExist && !userExist.isVerified) {
+            return res.status(409).json({
+                success: false,
+                unverified: true,
+                message: "Email exists but not verified. Resend verification?",
+            });
+        }
+
+        if (userExist && userExist.isVerified) {
             return res.status(409).json({
                 success: false,
                 message: "User Already Exist, please Login",
@@ -59,17 +66,19 @@ export const signup = async (req, res) => {
 export const verifyEmail = async (req, res) => {
     try {
         const { token, uid } = req.query;
+
         if (!token || !uid) {
             return res.status(400).json({
                 success: false,
-                message: "Verification failed",
+                message: "Verification Failed",
             });
         }
 
+        // Get the latest (most recent) token
         const record = await VerificationToken.findOne({
             userId: uid,
             used: false,
-        });
+        }).sort({ createdAt: -1 });
 
         if (!record) {
             return res.status(400).json({
@@ -78,22 +87,18 @@ export const verifyEmail = async (req, res) => {
             });
         }
 
-        if (record.expiresAt < Date.now()) {
+        if (new Date(record.expiresAt).getTime() < Date.now()) {
+            await VerificationToken.deleteMany({ userId: uid });
             return res.status(400).json({
                 success: false,
-                message: "Verification Failed",
+                message: "Verification link expired",
+                expired: true,
             });
         }
 
+        // Verify token hash
         const isValid = await bcrypt.compare(token, record.token);
         if (!isValid) {
-            return res.status(400).json({
-                success: false,
-                message: "Verification Failed",
-            });
-        }
-
-        if (record.used) {
             return res.status(400).json({
                 success: false,
                 message: "Verification Failed",
@@ -108,18 +113,73 @@ export const verifyEmail = async (req, res) => {
             });
         }
 
+        // Mark user as verified
         user.isVerified = true;
         await user.save();
 
+        // Mark token as used
         record.used = true;
         await record.save();
 
-        res.status(200).json({
+        return res.status(200).json({
             success: true,
             message: "Email Verified successfully",
         });
     } catch (error) {
-        res.status(400).json({
+        return res.status(400).json({
+            success: false,
+            message: error.message,
+        });
+    }
+};
+
+export const resendVerification = async (req, res) => {
+    try {
+        const { email } = req.body;
+        if (!email) {
+            return res.status(400).json({
+                success: false,
+                message: "Email is required",
+            });
+        }
+
+        const user = await User.findOne({ email });
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: "User not found",
+            });
+        }
+
+        if (user.isVerified) {
+            return res.status(400).json({
+                success: false,
+                message: "Email is already verified",
+            });
+        }
+
+        // Delete old tokens
+        await VerificationToken.deleteMany({ userId: user._id });
+
+        // Create new token
+        const rawToken = crypto.randomBytes(32).toString("hex");
+        const hashedToken = await bcrypt.hash(rawToken, 12);
+
+        await VerificationToken.create({
+            userId: user._id,
+            token: hashedToken,
+            expiresAt: new Date(Date.now() + 10 * 60 * 1000),
+        });
+
+        const verifyUrl = `${ENV.CLIENT_URL}/verify?token=${rawToken}&uid=${user._id}`;
+
+        await sendVerificationEmail(user.email, verifyUrl);
+        return res.status(200).json({
+            success: true,
+            message: "New verification link sent to your email",
+        });
+    } catch (error) {
+        return res.status(400).json({
             success: false,
             message: error.message,
         });
@@ -160,10 +220,12 @@ export const login = async (req, res) => {
         if (!user.isVerified) {
             const rawToken = crypto.randomBytes(32).toString("hex");
             const hashedToken = await bcrypt.hash(rawToken, 12);
+            await VerificationToken.deleteMany({ userId: user._id });
+
             await VerificationToken.create({
                 userId: user._id,
                 token: hashedToken,
-                expiresAt: new Date(Date.now() + 10 * 60 * 1000), // 10 minutess
+                expiresAt: new Date(Date.now() + 10 * 60 * 1000),
             });
 
             const verifyUrl = `${ENV.CLIENT_URL}/verify?token=${rawToken}&uid=${user._id}`;
@@ -172,8 +234,8 @@ export const login = async (req, res) => {
 
             return res.status(403).json({
                 success: false,
-                message:
-                    "Your email is not verified, we have sent the verification link on your mail, please verify first.",
+                message: "Email not verified",
+                resend: true,
             });
         }
         req.session.userId = user._id;
