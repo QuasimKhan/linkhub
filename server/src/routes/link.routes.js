@@ -12,8 +12,8 @@ const linkRouter = express.Router();
 
 linkRouter.post("/create", requireAuth, createLink);
 linkRouter.get("/", requireAuth, getLinks);
+linkRouter.patch("/reorder", requireAuth, reorderLinks);
 linkRouter.patch("/:id", requireAuth, updateLink);
 linkRouter.delete("/:id", requireAuth, deleteLink);
-linkRouter.patch("/reorder", requireAuth, reorderLinks);
 
 export default linkRouter;

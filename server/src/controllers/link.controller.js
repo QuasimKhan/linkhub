@@ -101,9 +101,17 @@ export const deleteLink = async (req, res) => {
             });
         }
 
+        // 🟢 After deleting → reorder all links
+        const userLinks = await Link.find({ userId }).sort("order");
+
+        for (let i = 0; i < userLinks.length; i++) {
+            userLinks[i].order = i + 1;
+            await userLinks[i].save();
+        }
+
         res.status(200).json({
             success: true,
-            message: "Link deleted",
+            message: "Link deleted & order normalized",
         });
     } catch (error) {
         return res.status(500).json({
@@ -114,6 +122,7 @@ export const deleteLink = async (req, res) => {
 };
 
 // Reorder links
+// Reorder links (safe + validated)
 export const reorderLinks = async (req, res) => {
     try {
         const userId = req.user._id;
@@ -126,18 +135,67 @@ export const reorderLinks = async (req, res) => {
             });
         }
 
-        for (let i = 0; i < orderedIds.length; i++) {
-            await Link.findOneAndUpdate(
-                { _id: orderedIds[i], userId },
-                { order: i + 1 }
-            );
+        // Normalize: keep only non-empty strings
+        const cleanIds = orderedIds
+            .map((id) => (id ? String(id).trim() : null))
+            .filter((id) => id);
+
+        if (cleanIds.length === 0) {
+            return res.status(400).json({
+                success: false,
+                message: "No valid IDs provided",
+            });
         }
 
-        res.status(200).json({
+        // Optional: verify ownership/count to detect mismatches early
+        const found = await Link.find({ _id: { $in: cleanIds }, userId })
+            .select("_id")
+            .lean();
+        const foundIds = new Set(found.map((d) => String(d._id)));
+
+        // If not all IDs belong to this user, reject with clear message
+        const notOwned = cleanIds.filter((id) => !foundIds.has(id));
+        if (notOwned.length > 0) {
+            console.warn(
+                "reorderLinks: received ids not owned by user:",
+                notOwned
+            );
+            return res.status(403).json({
+                success: false,
+                message: "One or more links do not belong to you",
+                notOwned,
+            });
+        }
+
+        // Build bulk operations
+        const operations = cleanIds.map((id, idx) => ({
+            updateOne: {
+                filter: { _id: id, userId },
+                update: { $set: { order: idx + 1 } },
+            },
+        }));
+
+        if (operations.length === 0) {
+            return res.status(400).json({
+                success: false,
+                message: "No operations to perform",
+            });
+        }
+
+        // Execute bulk operation
+        const result = await Link.bulkWrite(operations);
+
+        // Optional: return the refreshed list so client can sync immediately
+        const updatedLinks = await Link.find({ userId }).sort("order").lean();
+
+        return res.status(200).json({
             success: true,
             message: "Links reordered",
+            result,
+            data: updatedLinks,
         });
     } catch (error) {
+        console.error("Reorder error:", error);
         return res.status(500).json({
             success: false,
             message: error.message || "Server error",

@@ -13,7 +13,7 @@ export const createLink = async (payload) => {
     return res.data?.data;
 };
 
-export const updateLink = async (payload, id) => {
+export const updateLink = async (id, payload) => {
     const res = await api.patch(`/api/links/${id}`, payload);
     return res.data?.data;
 };
@@ -25,5 +25,5 @@ export const deleteLink = async (id) => {
 
 export const reorderLinks = async (orderedIds) => {
     const res = await api.patch("/api/links/reorder", { orderedIds });
-    return res.data;
+    return res; // return full axios response
 };
