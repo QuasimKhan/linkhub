@@ -16,6 +16,8 @@ const Login = () => {
 
     const { login, resendVerification, authLoading } = useAuth();
     const navigate = useNavigate();
+    const params = new URLSearchParams(location.search);
+    const redirect = params.get("redirect");
 
     const handleChange = (e) =>
         setForm((s) => ({ ...s, [e.target.name]: e.target.value }));
@@ -39,7 +41,11 @@ const Login = () => {
         try {
             await login(form.email.trim(), form.password);
             toast.success("Logged in successfully");
-            navigate("/dashboard");
+            if (redirect && redirect.startsWith("/")) {
+                navigate(redirect);
+            } else {
+                navigate("/dashboard");
+            }
         } catch (err) {
             const message = err?.message || "Login failed";
             const unverified = !!err?.unverified;

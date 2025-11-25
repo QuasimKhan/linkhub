@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import api from "../lib/api.js";
+import FullScreenLoader from "../components/ui/FullScreenLoader.jsx";
 
 const AuthContext = createContext();
 
@@ -96,12 +97,7 @@ export const AuthProvider = ({ children }) => {
         fetchMe();
     }, []);
 
-    if (loading)
-        return (
-            <div className="text-center py-8">
-                <span className="loading loading-ball loading-xs" />
-            </div>
-        );
+    if (loading) return <FullScreenLoader />;
 
     return (
         <AuthContext.Provider
