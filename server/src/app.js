@@ -22,7 +22,7 @@ app.use(sessionMiddleware);
 
 app.use("/api/auth", authRouter);
 app.use("/api/user", userRouter);
-app.use("/api/link", linkRouter);
+app.use("/api/links", linkRouter);
 app.get("/api/session", (req, res) => {
     if (!req.session.views) req.session.views = 1;
     else req.session.views++;
