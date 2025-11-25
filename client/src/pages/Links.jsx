@@ -187,43 +187,37 @@ const Links = () => {
                             <SortableLink key={link._id} id={link._id}>
                                 <LinkCard
                                     link={link}
-                                    onToggle={async (item) => {
-                                        const previous = item.isActive;
-                                        const updatedState = !previous;
+                                    onToggle={async (id, checked) => {
+                                        const previous = links.find(
+                                            (l) => l._id === id
+                                        )?.isActive;
 
                                         // Optimistic UI update
                                         setLinks((prev) =>
                                             prev.map((l) =>
-                                                l._id === item._id
+                                                l._id === id
                                                     ? {
                                                           ...l,
-                                                          isActive:
-                                                              updatedState,
+                                                          isActive: checked,
                                                       }
                                                     : l
                                             )
                                         );
 
                                         try {
-                                            await updateLink(item._id, {
-                                                isActive: updatedState,
+                                            await updateLink(id, {
+                                                isActive: checked,
                                             });
-
                                             toast.success(
-                                                updatedState
+                                                checked
                                                     ? "Link is now active"
-                                                    : "Link is now hidden",
-                                                {
-                                                    icon: updatedState
-                                                        ? "🟢"
-                                                        : "⚪",
-                                                }
+                                                    : "Link is now hidden"
                                             );
                                         } catch (error) {
-                                            // Revert UI if failed
+                                            // Revert on error
                                             setLinks((prev) =>
                                                 prev.map((l) =>
-                                                    l._id === item._id
+                                                    l._id === id
                                                         ? {
                                                               ...l,
                                                               isActive:
@@ -232,7 +226,6 @@ const Links = () => {
                                                         : l
                                                 )
                                             );
-
                                             toast.error(
                                                 "Failed to update link visibility"
                                             );

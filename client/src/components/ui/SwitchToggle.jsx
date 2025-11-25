@@ -6,7 +6,7 @@ const SwitchToggle = ({ checked, onChange }) => {
             <input
                 type="checkbox"
                 checked={checked}
-                onChange={onChange}
+                onChange={(e) => onChange(e.target.checked)} // FIXED HERE
                 className="sr-only peer"
             />
             <div

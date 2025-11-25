@@ -113,7 +113,7 @@ const LinkCard = ({ link, onToggle, onEdit, onDelete }) => {
     };
 
     const handleToggle = (checked) => {
-        onToggle({ ...link, isActive: checked });
+        onToggle(link._id, checked);
     };
 
     return (
@@ -211,8 +211,8 @@ const LinkCard = ({ link, onToggle, onEdit, onDelete }) => {
 
                                 <SwitchToggle
                                     checked={link.isActive}
-                                    onChange={(e) =>
-                                        handleToggle(e.target.checked)
+                                    onChange={(checked) =>
+                                        onToggle(link._id, checked)
                                     }
                                 />
                             </div>
