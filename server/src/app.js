@@ -18,6 +18,8 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(morgan("dev"));
 app.use(cors(corsOptions));
+app.set("trust proxy", 1);
+
 app.use(sessionMiddleware);
 
 //routes
