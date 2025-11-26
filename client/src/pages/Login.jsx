@@ -195,6 +195,7 @@ const Login = () => {
                             fullWidth
                             size="md"
                             type="submit"
+                            className="bg-indigo-600! text-white! dark:bg-red-500!"
                             loading={authLoading}
                         />
                     </form>

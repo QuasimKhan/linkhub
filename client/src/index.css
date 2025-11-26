@@ -2,7 +2,22 @@
 @plugin "daisyui";
 @custom-variant dark (&:where(.dark, .dark *));
 
-/* Light mode default */
+/* Import Google Font First */
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap");
+
+/* 📌 Set Inter as default font in Tailwind */
+@theme {
+    --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+}
+
+/* 📌 Apply font globally */
+:root {
+    font-family: var(--font-sans);
+}
+
+/* ======================= BASE STYLES ======================= */
+
+/* Light mode */
 html,
 body {
     @apply bg-gray-100 text-gray-900 transition-colors duration-300;
@@ -14,6 +29,9 @@ html.dark body {
     @apply bg-gray-900 text-gray-100;
 }
 
+/* ======================= ANIMATIONS ======================= */
+
+/* Theme enter animation */
 @keyframes theme-in {
     from {
         opacity: 0;
@@ -24,57 +42,55 @@ html.dark body {
         transform: scale(1) rotate(0deg);
     }
 }
-
 .animate-theme-in {
     animation: theme-in 0.25s ease-out forwards;
 }
 
+/* Floating effect */
 @keyframes float {
-    0% {
+    0%,
+    100% {
         transform: translateY(0px);
     }
     50% {
         transform: translateY(-8px);
     }
-    100% {
-        transform: translateY(0px);
-    }
 }
-
 .animate-float {
     animation: float 4s ease-in-out infinite;
 }
 
+/* Fade-in */
 @keyframes fade-in {
-    0% {
+    from {
         opacity: 0;
         transform: translateY(10px);
     }
-    100% {
+    to {
         opacity: 1;
         transform: translateY(0);
     }
 }
-
 .animate-fade-in {
     animation: fade-in 0.8s ease-out forwards;
 }
 
+/* Slide up */
 @keyframes slide-up {
-    0% {
+    from {
         opacity: 0;
         transform: translateY(30px);
     }
-    100% {
+    to {
         opacity: 1;
         transform: translateY(0);
     }
 }
-
 .animate-slide-up {
     animation: slide-up 1s ease-out forwards;
 }
 
+/* Soft Pulse */
 @keyframes pulse-slow {
     0% {
         opacity: 0.3;
@@ -86,38 +102,22 @@ html.dark body {
         opacity: 0.3;
     }
 }
-
 .animate-pulse-slow {
     animation: pulse-slow 6s ease-in-out infinite;
 }
 
-/*Modal Css */
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-    }
-    to {
-        opacity: 1;
-    }
-}
+/* ======================= MODAL ANIMATIONS ======================= */
 
 @keyframes scaleIn {
-    from {
+    0% {
+        transform: scale(0.92);
         opacity: 0;
-        transform: scale(0.95);
     }
-    to {
-        opacity: 1;
+    100% {
         transform: scale(1);
+        opacity: 1;
     }
 }
-
-.animate-fadeIn {
-    animation: fadeIn 0.2s ease-out forwards;
-}
-
 .animate-scaleIn {
-    animation: scaleIn 0.2s ease-out forwards;
+    animation: scaleIn 0.18s ease-out;
 }
-
-/*modal css ends */
