@@ -313,6 +313,7 @@ const Links = () => {
                 link={editData}
                 onClose={() => setEditModalOpen(false)}
                 onSave={async (updated) => {
+                    setEditing(true);
                     try {
                         await updateLink(editData._id, updated);
                         toast.success("Link updated");
@@ -320,8 +321,11 @@ const Links = () => {
                         fetchLinks();
                     } catch {
                         toast.error("Failed to update link");
+                    } finally {
+                        setEditing(false);
                     }
                 }}
+                editing={editing}
             />
         </div>
     );

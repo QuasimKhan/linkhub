@@ -50,7 +50,9 @@ const EditLinkModal = ({ open, onClose, onSave, link, editing }) => {
                     type="submit"
                     fullWidth
                     size="md"
+                    loading={editing}
                     className="!bg-indigo-600 hover:!bg-indigo-700 text-white shadow-lg shadow-indigo-500/20"
+                    disabled={editing}
                 />
             </form>
         </Modal>
