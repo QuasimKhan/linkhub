@@ -42,6 +42,7 @@ const Links = () => {
 
     const [deleteModalOpen, setDeleteModalOpen] = useState(false);
     const [deleteId, setDeleteId] = useState(null);
+    const [deleting, setDeleting] = useState(false);
 
     const [editModalOpen, setEditModalOpen] = useState(false);
     const [editData, setEditData] = useState(null);
@@ -94,6 +95,7 @@ const Links = () => {
 
     // Confirm delete
     const confirmDelete = async () => {
+        setDeleting(true);
         try {
             await deleteLink(deleteId);
             toast.success("Link deleted");
@@ -101,6 +103,7 @@ const Links = () => {
         } catch {
             toast.error("Failed to delete link");
         } finally {
+            setDeleting(false);
             setDeleteModalOpen(false);
             setDeleteId(null);
         }
@@ -293,6 +296,7 @@ const Links = () => {
                 open={deleteModalOpen}
                 onClose={() => setDeleteModalOpen(false)}
                 onConfirm={confirmDelete}
+                deleting={deleting}
             />
 
             {/* EDIT MODAL */}

@@ -1,6 +1,7 @@
 import React from "react";
+import Button from "./Button";
 
-const DeleteConfirmModal = ({ open, onClose, onConfirm }) => {
+const DeleteConfirmModal = ({ open, onClose, onConfirm, deleting }) => {
     if (!open) return null;
 
     return (
@@ -29,7 +30,7 @@ const DeleteConfirmModal = ({ open, onClose, onConfirm }) => {
                 </p>
 
                 <div className="flex items-center justify-between gap-4">
-                    <button
+                    <Button
                         className="
                             w-full py-2 rounded-xl 
                             bg-white/20 dark:bg-white/10
@@ -37,21 +38,28 @@ const DeleteConfirmModal = ({ open, onClose, onConfirm }) => {
                             hover:bg-white/30 transition
                         "
                         onClick={onClose}
-                    >
-                        Cancel
-                    </button>
+                        text="Cancel"
+                    />
 
-                    <button
+                    <Button
                         className="
                             w-full py-2 rounded-xl 
-                            bg-red-600 text-white 
-                            shadow-lg shadow-red-500/30 
+                            bg-red-600! text-white!     
                             hover:bg-red-700 transition
                         "
                         onClick={onConfirm}
-                    >
-                        Delete
-                    </button>
+                        text={
+                            deleting ? (
+                                <div className="flex items-center justify-center gap-2">
+                                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                                    Deleting...
+                                </div>
+                            ) : (
+                                "Delete"
+                            )
+                        }
+                        disabled={deleting}
+                    />
                 </div>
             </div>
         </div>
