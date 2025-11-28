@@ -39,6 +39,7 @@ const Links = () => {
     const [openModal, setOpenModal] = useState(false);
     const [form, setForm] = useState({ title: "", url: "" });
     const [error, setError] = useState("");
+    const [creating, setCreating] = useState(false);
 
     const [deleteModalOpen, setDeleteModalOpen] = useState(false);
     const [deleteId, setDeleteId] = useState(null);
@@ -46,6 +47,7 @@ const Links = () => {
 
     const [editModalOpen, setEditModalOpen] = useState(false);
     const [editData, setEditData] = useState(null);
+    const [editing, setEditing] = useState(false);
 
     // DND Sensors
     const sensors = useSensors(
@@ -77,6 +79,8 @@ const Links = () => {
     const handleCreateLink = async (e) => {
         e.preventDefault();
 
+        setCreating(true);
+
         if (!form.title.trim() || !form.url.trim()) {
             setError("Title and URL are required");
             return;
@@ -90,6 +94,8 @@ const Links = () => {
             fetchLinks();
         } catch {
             toast.error("Failed to create link");
+        } finally {
+            setCreating(false);
         }
     };
 
@@ -285,8 +291,10 @@ const Links = () => {
                         type="submit"
                         fullWidth
                         size="md"
+                        loading={creating}
                         className="!bg-indigo-600 hover:!bg-indigo-700 text-white 
                             shadow-lg shadow-indigo-500/20"
+                        disabled={creating}
                     />
                 </form>
             </Modal>

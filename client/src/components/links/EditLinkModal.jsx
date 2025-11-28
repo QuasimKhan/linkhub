@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import Modal from "../ui/Modal";
 import Button from "../ui/Button";
 
-const EditLinkModal = ({ open, onClose, onSave, link }) => {
+const EditLinkModal = ({ open, onClose, onSave, link, editing }) => {
     const [form, setForm] = useState({ title: "", url: "" });
 
     useEffect(() => {
